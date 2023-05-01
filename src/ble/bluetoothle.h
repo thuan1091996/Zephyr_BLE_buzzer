@@ -61,6 +61,7 @@ int ble_init(void);
 void on_connected_callback(struct bt_conn *conn, uint8_t err);
 void on_disconnected_callback(struct bt_conn *conn, uint8_t reason);
 int ble_adv_start(void);
+struct bt_conn * ble_get_conn_info(void);
 #endif // BLE_BLUETOOTHLE_H_
 
 /*** End of File **************************************************************/

@@ -124,3 +124,8 @@ int ble_adv_start(void)
     LOG_INF("Advertising successfully started\n");
     return 0;
 }
+
+struct bt_conn * ble_get_conn_info(void)
+{
+    return current_conn;
+}

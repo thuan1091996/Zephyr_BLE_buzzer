@@ -75,16 +75,6 @@ ssize_t buzzer_read_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, vo
 ssize_t buzzer_write_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset);
 ssize_t buzzer_cccd_changed(const struct bt_gatt_attr *attr, uint16_t value);
 
-BT_GATT_SERVICE_DEFINE(BUZZER_SERVICE,
-    BT_GATT_PRIMARY_SERVICE(BT_UUID_CUSTOM_SERVICE),
-    BT_GATT_CHARACTERISTIC(BT_UUID_CUSTOM_OUTPUT_CHRC,
-                           BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY | BT_GATT_CHRC_WRITE,
-                           BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
-                           &buzzer_read_cb,
-                           &buzzer_write_cb,
-                           NULL),
-    BT_GATT_CCC(buzzer_cccd_changed, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-);
 
 #endif // BLE_GATT_CUSTOM_H_
 

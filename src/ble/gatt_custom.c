@@ -135,11 +135,11 @@ ssize_t buzzer_cccd_changed(const struct bt_gatt_attr *attr, uint16_t value)
 		p_custom_attr = bt_gatt_find_by_uuid(NULL, 0 , BT_UUID_CUSTOM_OUTPUT_CHRC);
 		if (NULL == p_custom_attr)
 		{
-			LOG_ERR("Cannot find custom characteristic handle");
+			LOG_ERR("Cannot find buzzer characteristic handle");
 		}
 		else
 		{
-			LOG_INF("Found custom characteristic handle %p", p_custom_attr);
+			LOG_INF("Found buzzer characteristic handle %p", p_custom_attr);
 		}
 		first_time=false;
 	}
@@ -157,5 +157,5 @@ ssize_t buzzer_cccd_changed(const struct bt_gatt_attr *attr, uint16_t value)
         default: 
             printk("Error, CCCD has been set to an invalid value");     
     }
-    LOG_INF("Sensor notification %s.", g_is_custom_notify_en ? "enabled" : "disabled");
+    LOG_INF("Buzzer notification %s.", g_is_custom_notify_en ? "enabled" : "disabled");
 }

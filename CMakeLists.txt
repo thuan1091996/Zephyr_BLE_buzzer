@@ -10,6 +10,7 @@ target_sources(app PRIVATE src/main.c)
 # Custom files and folders
 target_sources(app PRIVATE
     src/buzzer.c
+    src/battery.c
     src/ble/bluetoothle.c
     src/ble/gatt_bas.c
     src/ble/gatt_custom.c

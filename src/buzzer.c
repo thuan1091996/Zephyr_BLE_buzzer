@@ -1,34 +1,34 @@
 /*******************************************************************************
-* Title                 :    
-* Filename              :   gatt_bas.c
+* Title                 :   
+* Filename              :   buzzer.c
 * Author                :   thuantm96
-* Origin Date           :   2023/03/16
+* Origin Date           :   2023/05/01
 * Version               :   0.0.0
-* Compiler              :   nRF connect SDK 2.3
-* Target                :   nrf52
+* Compiler              :   nRF connect SDK v2.3
+* Target                :   nRF52
 * Notes                 :   None
 *******************************************************************************/
 
 /*************** MODULE REVISION LOG ******************************************
 *
 *    Date       Software Version	Initials	Description
-*  2023/03/16       0.0.0	         thuantm96      Module Created.
+*  2023/05/01       0.0.0	         thuantm96      Module Created.
 *
 *******************************************************************************/
 
-/** \file gatt_bas.c
+/** \file buzzer.c
  *  \brief This module contains the
  */
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "bluetoothle.h"
-#include <zephyr/logging/log.h>
+#include "buzzer.h"
+
 /******************************************************************************
 * Module Preprocessor Constants
 *******************************************************************************/
-#define MODULE_NAME			        gatt_bas
-#define MODULE_LOG_LEVEL	        LOG_LEVEL_DBG
+#define MODULE_NAME			buzzer
+#define MODULE_LOG_LEVEL	LOG_LEVEL_INF
 LOG_MODULE_REGISTER(MODULE_NAME, MODULE_LOG_LEVEL);
 
 /******************************************************************************
@@ -42,8 +42,8 @@ LOG_MODULE_REGISTER(MODULE_NAME, MODULE_LOG_LEVEL);
 /******************************************************************************
 * Module Variable Definitions
 *******************************************************************************/
-uint8_t batt_level = 100;
-static bool g_is_bas_notify_en = false; //Use to allow send notification when char update
+static struct gpio_dt_spec buzzer_dt = GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
+
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
@@ -51,23 +51,34 @@ static bool g_is_bas_notify_en = false; //Use to allow send notification when ch
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-
-// attribute read callback
-ssize_t bas_read_cb(struct bt_conn *conn,
-			       const struct bt_gatt_attr *attr, void *buf,
-			       uint16_t len, uint16_t offset)
+void buzzer_init()
 {
-	uint8_t cur_batt = batt_level;
-	ssize_t ret_val= bt_gatt_attr_read(conn, attr, buf, len, offset, &cur_batt, sizeof(cur_batt));
-	LOG_INF("Reading battery: %d", cur_batt);
-	return ret_val;
+    int ret;
+	if (!device_is_ready(buzzer_dt.port)) {
+		LOG_ERR("Buzzer pin device not ready");
+	}
+
+	ret = gpio_pin_configure_dt(&buzzer_dt, GPIO_OUTPUT_ACTIVE);
+	if (ret < 0) {
+		LOG_ERR("Failed to config Buzzer pin with err: %d", ret);
+	}
+	LOG_INF("Buzzer pin init succesfully");
 }
 
-// notification changed callback, log it
-ssize_t bas_notify_cb(const struct bt_gatt_attr *attr, uint16_t value)
+void buzzer_on()
 {
-	ARG_UNUSED(attr);
-	g_is_bas_notify_en = (value == BT_GATT_CCC_NOTIFY);
-	LOG_INF("Battery level notification %s.", g_is_bas_notify_en ? "enabled" : "disabled");
-	return 0;
+    int ret;
+    ret = gpio_pin_set_dt(&buzzer_dt, 1);
+    if (ret < 0) {
+        LOG_ERR("Failed to turn on Buzzer pin with err: %d", ret);
+    }
+}
+
+void buzzer_off()
+{
+    int ret;
+    ret = gpio_pin_set_dt(&buzzer_dt, 0);
+    if (ret < 0) {
+        LOG_ERR("Failed to turn off Buzzer pin with err: %d", ret);
+    }
 }

@@ -1,35 +1,37 @@
 /****************************************************************************
-* Title                 :    header file
-* Filename              :   gatt_bas.h
+* Title                 :   header file
+* Filename              :   buzzer.h
 * Author                :   thuantm96
-* Origin Date           :   2023/03/16
+* Origin Date           :   2023/05/01
 * Version               :   v0.0.0
-* Compiler              :   nRF connect SDK 2.3
-* Target                :   nrf52
+* Compiler              :   nRF connect SDK v2.3
+* Target                :   nRF52
 * Notes                 :   None
 *****************************************************************************/
 
 /*************** INTERFACE CHANGE LIST **************************************
 *
 *    Date    	Software Version    Initials   	Description
-*  2023/03/16    v0.0.0         	thuantm96      Interface Created.
+*  2023/05/01    v0.0.0         	thuantm96      Interface Created.
 *
 *****************************************************************************/
 
-/** \file gatt_bas.h
+/** \file buzzer.h
  *  \brief This module contains .
  *
  *  This is the header file for 
  */
-#ifndef BLE_GATT_BAS_H_
-#define BLE_GATT_BAS_H_
+#ifndef BUZZER_H_
+#define BUZZER_H_
 
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include <zephyr/bluetooth/bluetooth.h>
-#include <zephyr/bluetooth/uuid.h>
-#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/drivers/gpio.h>
+#include <zephyr/devicetree.h>
+
 /******************************************************************************
 * Preprocessor Constants
 *******************************************************************************/
@@ -58,20 +60,9 @@
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
-ssize_t bas_read_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset);
-ssize_t bas_notify_cb(const struct bt_gatt_attr *attr, uint16_t value);
-
-BT_GATT_SERVICE_DEFINE(BAS_SERVICE,
-	BT_GATT_PRIMARY_SERVICE(BT_UUID_BAS),
-	BT_GATT_CHARACTERISTIC(BT_UUID_BAS_BATTERY_LEVEL,
-			       		   BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-			       		   BT_GATT_PERM_READ, 
-                   		   bas_read_cb, 
-                   		   NULL,
-			       		   NULL),
-	BT_GATT_CCC(bas_notify_cb, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-);
-
-#endif // BLE_GATT_BAS_H_
+void buzzer_init();
+void buzzer_on();
+void buzzer_off();
+#endif // BUZZER_H_
 
 /*** End of File **************************************************************/

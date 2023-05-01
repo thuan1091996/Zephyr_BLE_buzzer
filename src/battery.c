@@ -53,7 +53,12 @@ static const struct adc_dt_spec adc_channels[] = {
 /******************************************************************************
 * Module Variable Definitions
 *******************************************************************************/
-
+static uint16_t raw_adc_mv;
+struct adc_sequence sequence = {
+    .buffer = &raw_adc_mv,
+    /* buffer size in bytes, not number of samples */
+    .buffer_size = sizeof(raw_adc_mv),
+};
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
@@ -61,43 +66,42 @@ static const struct adc_dt_spec adc_channels[] = {
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-uint8_t battery_level(void) {
-	int err;
-	int32_t val_mv;
-	int16_t buf = 0;
-    uint8_t batt_percent = 0; 
-
-
-	struct adc_sequence sequence = {
-		.buffer = &buf,
-		/* buffer size in bytes, not number of samples */
-		.buffer_size = sizeof(buf),
-	};
-
-	if (!device_is_ready(adc_channels[0].dev)) {
-		printk("ADC controller device not ready\n");
-		return batt_percent;
+void battery_init()
+{
+    int err;
+    LOG_INF("Battery init");
+    if (!device_is_ready(adc_channels[0].dev)) {
+		LOG_ERR("ADC controller device not ready, error: %d\n", err);
+		return;
 	}
 	err = adc_channel_setup_dt(&adc_channels[0]);
 	if (err < 0) {
-		printk("Could not setup channel #%d (%d)\n", 0, err);
-		return batt_percent;
+		LOG_ERR("Could not setup channel #%d (%d)\n", 0, err);
+		return;
 	}
-	(void)adc_sequence_init_dt(&adc_channels[0], &sequence);
+	adc_sequence_init_dt(&adc_channels[0], &sequence);
+    LOG_INF("Battery init successfully \n");
+
+}
+
+uint8_t battery_level(void) {
+	int err;
+	int32_t val_mv;
+    uint8_t batt_percent = 0; 
 
 	err = adc_read(adc_channels[0].dev, &sequence);
 	if (err < 0) {
-		printk("Could not read (%d)\n", err);
+		LOG_ERR("Could not read (%d)\n", err);
 		return batt_percent; 
 	}
 
-	val_mv = buf;
+	val_mv = raw_adc_mv;
 	err = adc_raw_to_millivolts_dt(&adc_channels[0], &val_mv);
 	if (err < 0) {
-		printk(" (value in mV not available)\n");
+		LOG_ERR(" (value in mV not available)\n");
 		return batt_percent; 
 	}
-    LOG_DBG("ADC value: %d mV \n", val_mv);
+    LOG_INF("Battery value: %d mV \n", val_mv);
 
 	if (val_mv >= BATTERY_FULL_MV) 
     {

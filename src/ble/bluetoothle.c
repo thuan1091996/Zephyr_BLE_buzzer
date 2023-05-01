@@ -25,6 +25,7 @@
 #include "bluetoothle.h"
 #include <zephyr/logging/log.h>
 #include "gatt_bas.h"
+#include "gatt_custom.h"
 
 /******************************************************************************
 * Module Preprocessor Constants

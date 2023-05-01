@@ -1,36 +1,40 @@
 /*******************************************************************************
-* Title                 :   
-* Filename              :   buzzer.c
+* Title                 :    
+* Filename              :   gatt_custom.c
 * Author                :   thuantm96
-* Origin Date           :   2023/05/01
+* Origin Date           :   2023/03/17
 * Version               :   0.0.0
-* Compiler              :   nRF connect SDK v2.3
-* Target                :   nRF52
+* Compiler              :   nRF connect SDK 2.3
+* Target                :   nrf52
 * Notes                 :   None
 *******************************************************************************/
 
 /*************** MODULE REVISION LOG ******************************************
 *
 *    Date       Software Version	Initials	Description
-*  2023/05/01       0.0.0	         thuantm96      Module Created.
+*  2023/03/17       0.0.0	         thuantm96      Module Created.
 *
 *******************************************************************************/
 
-/** \file buzzer.c
+/** \file gatt_custom.c
  *  \brief This module contains the
  */
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "buzzer.h"
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/logging/log.h>
+#include "bluetoothle.h"
+
+#include "../buzzer.h"
 
 /******************************************************************************
 * Module Preprocessor Constants
 *******************************************************************************/
-#define MODULE_NAME			buzzer
-#define MODULE_LOG_LEVEL	LOG_LEVEL_INF
+#define MODULE_NAME			        gatt_custom
+#define MODULE_LOG_LEVEL	        LOG_LEVEL_DBG
 LOG_MODULE_REGISTER(MODULE_NAME, MODULE_LOG_LEVEL);
-
 /******************************************************************************
 * Module Preprocessor Macros
 *******************************************************************************/
@@ -42,9 +46,8 @@ LOG_MODULE_REGISTER(MODULE_NAME, MODULE_LOG_LEVEL);
 /******************************************************************************
 * Module Variable Definitions
 *******************************************************************************/
-static struct gpio_dt_spec buzzer_dt = GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
 
-uint8_t buzzer_state = 0;
+static bool g_is_custom_notify_en = false;
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
@@ -52,40 +55,42 @@ uint8_t buzzer_state = 0;
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-void buzzer_init()
+ssize_t buzzer_read_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset)
 {
-    int ret;
-	if (!device_is_ready(buzzer_dt.port)) {
-		LOG_ERR("Buzzer pin device not ready");
-	}
-
-	ret = gpio_pin_configure_dt(&buzzer_dt, GPIO_OUTPUT_INACTIVE);
-	if (ret < 0) {
-		LOG_ERR("Failed to config Buzzer pin with err: %d", ret);
-	}
-    buzzer_state = 0;
-	LOG_INF("Buzzer pin init succesfully");
+    LOG_INF("Buzzer service read callback called\n");
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, buzzer_state, sizeof(buzzer_state));
 }
 
-void buzzer_on()
+ssize_t buzzer_write_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf, uint16_t len, uint16_t offset, uint8_t flags)
 {
-    int ret;
-    ret = gpio_pin_set_dt(&buzzer_dt, 1);
-    if (ret < 0) {
-        LOG_ERR("Failed to turn on Buzzer pin with err: %d", ret);
-        return;
+    uint8_t input_value = *((uint8_t*)buf);
+    LOG_INF("Buzzer service write callback called, Input data: %d \n", input_value);
+    if(input_value == 0)
+    {
+        buzzer_off();
     }
-    buzzer_state = 1;
+    else
+    {
+        buzzer_on();
+    }
+    return len;
 }
 
-void buzzer_off()
+void buzzer_cccd_changed(const struct bt_gatt_attr *attr, uint16_t value)
 {
-    int ret;
-    ret = gpio_pin_set_dt(&buzzer_dt, 0);
-    if (ret < 0) {
-        LOG_ERR("Failed to turn off Buzzer pin with err: %d", ret);
-        return;
-    }
-    buzzer_state = 0;
+    ARG_UNUSED(attr);
+    switch(value)
+    {
+        case BT_GATT_CCC_NOTIFY: 
+            g_is_custom_notify_en = true;
+            break;
 
+        case 0: 
+            g_is_custom_notify_en = false;
+            break;
+        
+        default: 
+            printk("Error, CCCD has been set to an invalid value");     
+    }
+    LOG_INF("Sensor notification %s.", g_is_custom_notify_en ? "enabled" : "disabled");
 }

@@ -11,6 +11,6 @@
 void main(void)
 {
 	printk("Hello World! %s\n", CONFIG_BOARD);
-	ble_init();
 	buzzer_init();
+	ble_init();
 }

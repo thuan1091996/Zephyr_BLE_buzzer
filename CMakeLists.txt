@@ -12,4 +12,5 @@ target_sources(app PRIVATE
     src/buzzer.c
     src/ble/bluetoothle.c
     src/ble/gatt_bas.c
+    src/ble/gatt_custom.c
 )

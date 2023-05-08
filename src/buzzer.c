@@ -42,7 +42,8 @@ LOG_MODULE_REGISTER(MODULE_NAME, MODULE_LOG_LEVEL);
 /******************************************************************************
 * Module Variable Definitions
 *******************************************************************************/
-static struct gpio_dt_spec buzzer_dt = GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
+static struct gpio_dt_spec buzzer_dt = GPIO_DT_SPEC_GET(DT_NODELABEL(buzzer), gpios);
+
 
 uint8_t buzzer_state = 0;
 /******************************************************************************

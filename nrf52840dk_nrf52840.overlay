@@ -1,9 +1,16 @@
-/ {
-	zephyr,user {
-		io-channels = <&adc 0>;
-	};
-};
+/{
+    zephyr,user {
+        io-channels = <&adc 0>;
+    };
 
+    leds {
+        compatible = "gpio-leds";
+        buzzer: buzzer_pin {
+            gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
+            label = "Buzzer";
+        };
+    };
+};
 &adc {
 	#address-cells = <1>;
 	#size-cells = <0>;

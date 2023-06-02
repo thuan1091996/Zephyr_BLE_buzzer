@@ -1,5 +1,8 @@
 ## Project overview 
-- nRF52 with NCS demo
-- BLE GAP peripheral / GATT server with BAS and a custom service to control output with timeout
-- Battery voltage update every 1 second
-- Integrate FUOTA
+**************************************************************
+nRF52 BLE peripheral example using Zephyr RTOS with the following functionalities:
+- Battery voltage reading from VCC every 1 second
+- Integrate DFU
+- GATT peripheral with:
+    - Battery service: Report device's battery information
+    - 

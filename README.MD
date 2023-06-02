@@ -5,4 +5,4 @@ nRF52 BLE peripheral example using Zephyr RTOS with the following functionalitie
 - Integrate DFU
 - GATT peripheral with:
     - Battery service: Report device's battery information
-    - 
+    - Custom service: Control IO
